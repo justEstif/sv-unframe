@@ -1,8 +1,6 @@
 <script lang="ts">
   import SignInForm from "$lib/components/SignInForm.svelte";
   import SignUpForm from "$lib/components/SignUpForm.svelte";
-
-  let activeTab: "sign-in" | "sign-up" = $state("sign-in");
 </script>
 
 <svelte:head>
@@ -21,24 +19,28 @@
     </div>
     <div class="card bg-base-300 w-full max-w-sm shrink-0 shadow-2xl">
       <div class="card-body">
-        <div role="tablist" class="tabs tabs-bordered w-full">
-          <button
-            role="tab"
-            class={["tab flex-1", activeTab === "sign-in" && "tab-active"]}
-            onclick={() => (activeTab = "sign-in")}>Sign In</button
-          >
-          <button
-            role="tab"
-            class={["tab flex-1", activeTab === "sign-up" && "tab-active"]}
-            onclick={() => (activeTab = "sign-up")}>Sign Up</button
-          >
-        </div>
+        <div role="tablist" class="tabs tabs-boxed">
+          <input
+            type="radio"
+            name="auth_tabs"
+            class="tab"
+            aria-label="Sign In"
+            checked
+          />
+          <div class="tab-content p-6">
+            <SignInForm />
+          </div>
 
-        {#if activeTab === "sign-in"}
-          <SignInForm />
-        {:else}
-          <SignUpForm />
-        {/if}
+          <input
+            type="radio"
+            name="auth_tabs"
+            class="tab"
+            aria-label="Sign Up"
+          />
+          <div class="tab-content p-6">
+            <SignUpForm />
+          </div>
+        </div>
       </div>
     </div>
   </div>

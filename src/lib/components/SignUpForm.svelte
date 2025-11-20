@@ -14,7 +14,7 @@
 
     <label for="email" class="label"> Email </label>
     <input {...signup.fields.email.as("text")} class="input" id="email" />
-    {#each signup.fields.email.issues() ?? [] as issue}
+    {#each signup.fields.email.issues() as issue}
       <p class="issue">{issue.message}</p>
     {/each}
 
@@ -24,7 +24,7 @@
       class="input"
       id="password"
     />
-    {#each signup.fields.password.issues() ?? [] as issue}
+    {#each signup.fields.password.issues() as issue}
       <p class="issue">{issue.message}</p>
     {/each}
 

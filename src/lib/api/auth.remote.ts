@@ -25,7 +25,7 @@ export const signup = form(signupSchema, async (user, invalid) => {
     }
     if (error instanceof APIError) {
       console.log(error.message, error.status);
-      invalid.password(error.message);
+      invalid(invalid.password(error.message));
     }
     throw error;
   }
@@ -41,29 +41,17 @@ export const login = form(loginSchema, async (user, invalid) => {
       throw error;
     } else if (error instanceof APIError) {
       console.log(error.message, error.status);
-      invalid.password(error.message);
+      invalid(invalid.password(error.message));
     } else {
       throw error;
     }
   }
 });
 
-export const signout = form(async (_, invalid) => {
+export const signout = form(async () => {
   const { request } = getRequestEvent();
-
-  try {
-    await auth.api.signOut({ headers: request.headers });
-    redirect(303, "/");
-  } catch (error) {
-    if (isRedirect(error)) {
-      throw error;
-    } else if (error instanceof APIError) {
-      console.log(error.message, error.status);
-      invalid(error.message);
-    } else {
-      throw error;
-    }
-  }
+  await auth.api.signOut({ headers: request.headers });
+  redirect(303, "/");
 });
 
 export const getUser = query(async () => {

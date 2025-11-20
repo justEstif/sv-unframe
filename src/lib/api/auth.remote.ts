@@ -24,7 +24,6 @@ export const signup = form(signupSchema, async (user, invalid) => {
       throw error;
     }
     if (error instanceof APIError) {
-      console.log(error.message, error.status);
       invalid(invalid.password(error.message));
     }
     throw error;
@@ -40,7 +39,6 @@ export const login = form(loginSchema, async (user, invalid) => {
     if (isRedirect(error)) {
       throw error;
     } else if (error instanceof APIError) {
-      console.log(error.message, error.status);
       invalid(invalid.password(error.message));
     } else {
       throw error;

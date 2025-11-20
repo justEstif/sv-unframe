@@ -16,13 +16,13 @@ const loginSchema = z.object({
 
 export const signup = form(signupSchema, async (user) => {
   await auth.api.signUpEmail({ body: user });
-  redirect(307, `/admin`);
+  redirect(307, "/dashboard");
 });
 
 export const login = form(loginSchema, async (user) => {
   const { request } = getRequestEvent();
   await auth.api.signInEmail({ body: user, headers: request.headers });
-  redirect(303, "/admin");
+  redirect(303, "/dashboard");
 });
 
 export const signout = form(async () => {
@@ -33,8 +33,8 @@ export const signout = form(async () => {
 
 export const getUser = query(async () => {
   const { locals } = getRequestEvent();
-  if (!locals.user) {
-    redirect(307, "/auth/login");
-  }
+  // if (!locals.user) {
+  //   redirect(307, "/auth/login");
+  // }
   return locals.user;
 });

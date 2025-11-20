@@ -1,5 +1,5 @@
 import { isRedirect, redirect } from "@sveltejs/kit";
-import { form, getRequestEvent } from "$app/server";
+import { form, getRequestEvent, query } from "$app/server";
 import { auth } from "$lib/server/auth";
 import { z } from "zod";
 import { APIError } from "better-auth";
@@ -46,8 +46,16 @@ export const login = form(loginSchema, async (user, invalid) => {
   }
 });
 
-export const signout = form(async () => {
+export const signout = query(async () => {
   const { request } = getRequestEvent();
   await auth.api.signOut({ headers: request.headers });
   redirect(303, "/");
+});
+
+export const getUser = query(async () => {
+  const { locals } = getRequestEvent();
+  if (!locals.user) {
+    redirect(307, "/");
+  }
+  return locals.user;
 });

@@ -1,12 +1,8 @@
 <script lang="ts">
-  import type { PageProps } from "./$types";
-
-  let { data }: PageProps = $props();
-
-  console.log(data.user);
+  import NavBar from "$lib/components/NavBar.svelte";
 </script>
 
-<div>This is a navbar with your data {JSON.stringify(data.user)}</div>
+<NavBar />
 
 <h1>Dashboard</h1>
 

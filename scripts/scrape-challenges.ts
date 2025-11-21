@@ -5,6 +5,8 @@
  * Scrapes historical propaganda materials from:
  * - Library of Congress
  * - Internet Archive
+ * - Wikimedia Commons
+ * - Prelinger Archives
  *
  * Stores data as JSON files with images in lib/assets/
  */
@@ -30,7 +32,7 @@ const CONFIG = {
 interface ChallengeData {
   id: string;
   title: string;
-  source: 'Library of Congress' | 'Internet Archive';
+  source: 'Library of Congress' | 'Internet Archive' | 'Wikimedia Commons' | 'Prelinger Archives';
   sourceUrl: string;
   imageUrl: string;
   imageFilename: string;
@@ -249,6 +251,184 @@ async function scrapeInternetArchive(): Promise<ChallengeData[]> {
 }
 
 /**
+ * Wikimedia Commons API Scraper
+ * API Docs: https://www.mediawiki.org/wiki/API:Main_page
+ */
+async function scrapeWikimediaCommons(): Promise<ChallengeData[]> {
+  console.log('\n🖼️  Scraping Wikimedia Commons...\n');
+
+  const challenges: ChallengeData[] = [];
+
+  // Categories with fear-based propaganda
+  const categories = [
+    'Category:World_War_II_propaganda_posters',
+    'Category:World_War_I_propaganda_posters',
+    'Category:Cold_War_propaganda',
+  ];
+
+  for (const category of categories) {
+    if (challenges.length >= 10) break;
+
+    console.log(`  Searching category: "${category}"...`);
+
+    try {
+      const params = new URLSearchParams({
+        action: 'query',
+        generator: 'categorymembers',
+        gcmtitle: category,
+        gcmtype: 'file',
+        gcmlimit: '20',
+        prop: 'imageinfo',
+        iiprop: 'url|extmetadata|timestamp',
+        format: 'json',
+      });
+
+      const url = `https://commons.wikimedia.org/w/api.php?${params}`;
+
+      await sleep(CONFIG.rateLimit);
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        console.warn(`  ⚠ API error: ${response.statusText}`);
+        continue;
+      }
+
+      const data = await response.json();
+      const pages = data.query?.pages || {};
+
+      // Process results
+      for (const pageId in pages) {
+        if (challenges.length >= 10) break;
+
+        const page = pages[pageId];
+        const imageInfo = page.imageinfo?.[0];
+        if (!imageInfo) continue;
+
+        const metadata = imageInfo.extmetadata || {};
+        const title = page.title.replace('File:', '').replace(/\.(jpg|png|gif)$/i, '');
+        const dateValue = metadata.DateTimeOriginal?.value || metadata.DateTime?.value || '1940s';
+        const date = dateValue.substring(0, 10); // Extract date portion
+
+        const challengeId = generateChallengeId();
+        const imageFilename = `${challengeId}.jpg`;
+
+        const challenge: ChallengeData = {
+          id: challengeId,
+          title,
+          source: 'Wikimedia Commons',
+          sourceUrl: imageInfo.descriptionurl || `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(title)}`,
+          imageUrl: imageInfo.url,
+          imageFilename,
+          era: date,
+          historicalContext: `[NEEDS REVIEW] ${metadata.ImageDescription?.value || 'Public domain propaganda poster from Wikimedia Commons.'}`,
+          primaryTechnique: CONFIG.technique,
+          allTechniques: [CONFIG.technique],
+          difficulty: 'medium',
+          explanation: '[NEEDS REVIEW] This piece uses fear appeals to motivate action by highlighting dangers and threats.',
+          correctAnswers: [CONFIG.technique],
+        };
+
+        challenges.push(challenge);
+        console.log(`  ✓ Found: ${title.substring(0, 60)}...`);
+      }
+
+    } catch (error) {
+      console.error(`  ✗ Error with category "${category}":`, error);
+    }
+  }
+
+  console.log(`\n  📊 Found ${challenges.length} items from Wikimedia Commons\n`);
+  return challenges;
+}
+
+/**
+ * Prelinger Archives Scraper (via Internet Archive)
+ * API Docs: https://archive.org/advancedsearch.php
+ */
+async function scrapePrelingerArchives(): Promise<ChallengeData[]> {
+  console.log('\n🎞️  Scraping Prelinger Archives...\n');
+
+  const challenges: ChallengeData[] = [];
+
+  // Search queries for fear-based educational content
+  const searches = [
+    'collection:prelinger AND (safety OR danger)',
+    'collection:prelinger AND civil defense',
+    'collection:prelinger AND "industrial safety"',
+    'collection:prelinger AND venereal disease',
+  ];
+
+  for (const query of searches) {
+    if (challenges.length >= 8) break;
+
+    console.log(`  Searching: "${query}"...`);
+
+    try {
+      const params = new URLSearchParams({
+        q: query,
+        'fl[]': 'identifier,title,description,date,year,subject',
+        output: 'json',
+        rows: '5',
+      });
+
+      const url = `https://archive.org/advancedsearch.php?${params}`;
+
+      await sleep(CONFIG.rateLimit);
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        console.warn(`  ⚠ API error: ${response.statusText}`);
+        continue;
+      }
+
+      const data = await response.json();
+      const docs = data.response?.docs || [];
+
+      // Process results
+      for (const item of docs) {
+        if (challenges.length >= 8) break;
+
+        const identifier = item.identifier;
+        const title = item.title || 'Untitled';
+        const date = item.year || item.date || '1950s';
+
+        // Use thumbnail service for video frames
+        const imageUrl = `https://archive.org/services/img/${identifier}`;
+        const itemUrl = `https://archive.org/details/${identifier}`;
+
+        const challengeId = generateChallengeId();
+        const imageFilename = `${challengeId}.jpg`;
+
+        const challenge: ChallengeData = {
+          id: challengeId,
+          title,
+          source: 'Prelinger Archives',
+          sourceUrl: itemUrl,
+          imageUrl,
+          imageFilename,
+          era: date,
+          historicalContext: `[NEEDS REVIEW] ${item.description || 'Historical safety and educational film from the Prelinger Archives.'}`,
+          primaryTechnique: CONFIG.technique,
+          allTechniques: [CONFIG.technique],
+          difficulty: 'medium',
+          explanation: '[NEEDS REVIEW] This content uses fear-based messaging to encourage behavioral change.',
+          correctAnswers: [CONFIG.technique],
+        };
+
+        challenges.push(challenge);
+        console.log(`  ✓ Found: ${title.substring(0, 60)}...`);
+      }
+
+    } catch (error) {
+      console.error(`  ✗ Error with query "${query}":`, error);
+    }
+  }
+
+  console.log(`\n  📊 Found ${challenges.length} items from Prelinger Archives\n`);
+  return challenges;
+}
+
+/**
  * Main execution
  */
 async function main() {
@@ -268,11 +448,18 @@ async function main() {
     await fs.mkdir(CONFIG.challengesDir, { recursive: true });
     await fs.mkdir(CONFIG.imagesDir, { recursive: true });
 
-    // Scrape from sources
+    // Scrape from all sources
     const locChallenges = await scrapeLOC();
     const iaChallenges = await scrapeInternetArchive();
+    const wikimediaChallenges = await scrapeWikimediaCommons();
+    const prelingerChallenges = await scrapePrelingerArchives();
 
-    const allChallenges = [...locChallenges, ...iaChallenges];
+    const allChallenges = [
+      ...locChallenges,
+      ...iaChallenges,
+      ...wikimediaChallenges,
+      ...prelingerChallenges,
+    ];
 
     console.log('\n═══════════════════════════════════════');
     console.log(`\n📦 Total challenges found: ${allChallenges.length}\n`);
@@ -322,4 +509,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   main().catch(console.error);
 }
 
-export { main, scrapeLOC, scrapeInternetArchive };
+export {
+  main,
+  scrapeLOC,
+  scrapeInternetArchive,
+  scrapeWikimediaCommons,
+  scrapePrelingerArchives,
+};

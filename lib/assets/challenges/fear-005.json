@@ -1,0 +1,19 @@
+{
+  "id": "fear-005",
+  "title": "Bonny Jean, and A severe threat.",
+  "source": "Library of Congress",
+  "sourceUrl": "http://www.loc.gov/item/ca10001164/",
+  "imageUrl": "https://tile.loc.gov/image-services/iiif/public:gdcmassbookdig:bonnyjeanandseve00shar:bonnyjeanandseve00shar_0007/full/pct:12.5/0/default.jpg",
+  "imageFilename": "fear-005.jpg",
+  "era": "1887",
+  "historicalContext": "[NEEDS REVIEW] Also available in digital form.",
+  "primaryTechnique": "fear-appeal",
+  "allTechniques": [
+    "fear-appeal"
+  ],
+  "difficulty": "medium",
+  "explanation": "[NEEDS REVIEW] This piece uses fear appeals to motivate action by highlighting dangers and threats.",
+  "correctAnswers": [
+    "fear-appeal"
+  ]
+}

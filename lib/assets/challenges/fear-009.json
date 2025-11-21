@@ -1,0 +1,19 @@
+{
+  "id": "fear-009",
+  "title": "The weekly Negro world (Cary, Miss.), April 26, 1902",
+  "source": "Library of Congress",
+  "sourceUrl": "http://www.loc.gov/item/2018270512/1902-04-26/ed-1/",
+  "imageUrl": "https://tile.loc.gov/image-services/iiif/service:ndnp:msar:batch_msar_mica_ver01:data:2018270512:print:1902042601:0001/full/pct:3.125/0/default.jpg#h=488&w=368",
+  "imageFilename": "fear-009.jpg",
+  "era": "1902-04-26",
+  "historicalContext": "[NEEDS REVIEW] Cary, Miss.",
+  "primaryTechnique": "fear-appeal",
+  "allTechniques": [
+    "fear-appeal"
+  ],
+  "difficulty": "medium",
+  "explanation": "[NEEDS REVIEW] This piece uses fear appeals to motivate action by highlighting dangers and threats.",
+  "correctAnswers": [
+    "fear-appeal"
+  ]
+}

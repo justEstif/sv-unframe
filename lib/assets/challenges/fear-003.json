@@ -1,0 +1,19 @@
+{
+  "id": "fear-003",
+  "title": "War bonds. Feed the guns!",
+  "source": "Library of Congress",
+  "sourceUrl": "http://www.loc.gov/item/2003675391/",
+  "imageUrl": "https://tile.loc.gov/storage-services/service/pnp/cph/3g10000/3g11000/3g11200/3g11240_150px.jpg#h=150&w=121",
+  "imageFilename": "fear-003.jpg",
+  "era": "1915-01-01",
+  "historicalContext": "[NEEDS REVIEW] 1 print (poster) : lithograph, color ; 73 x 50 cm. | Poster showing a range of artillery, with soldier looking through a telescope.",
+  "primaryTechnique": "fear-appeal",
+  "allTechniques": [
+    "fear-appeal"
+  ],
+  "difficulty": "medium",
+  "explanation": "[NEEDS REVIEW] This piece uses fear appeals to motivate action by highlighting dangers and threats.",
+  "correctAnswers": [
+    "fear-appeal"
+  ]
+}

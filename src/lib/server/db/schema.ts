@@ -1,5 +1,15 @@
 import { sql } from "drizzle-orm";
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
+
+const timestamps = {
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .default(sql`(current_timestamp)`)
+    .notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .default(sql`(current_timestamp)`)
+    .$onUpdate(() => new Date())
+    .notNull(),
+};
 
 export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
@@ -9,30 +19,19 @@ export const user = sqliteTable("user", {
     .default(false)
     .notNull(),
   image: text("image"),
-  createdAt: integer("created_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .$onUpdate(() => /* @__PURE__ */ new Date())
-    .notNull(),
+  ...timestamps,
 });
 
 export const session = sqliteTable("session", {
   id: text("id").primaryKey(),
   expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
   token: text("token").notNull().unique(),
-  createdAt: integer("created_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-    .$onUpdate(() => /* @__PURE__ */ new Date())
-    .notNull(),
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
+  ...timestamps,
 });
 
 export const account = sqliteTable("account", {
@@ -53,12 +52,7 @@ export const account = sqliteTable("account", {
   }),
   scope: text("scope"),
   password: text("password"),
-  createdAt: integer("created_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-    .$onUpdate(() => /* @__PURE__ */ new Date())
-    .notNull(),
+  ...timestamps,
 });
 
 export const verification = sqliteTable("verification", {
@@ -66,11 +60,45 @@ export const verification = sqliteTable("verification", {
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
   expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
-  createdAt: integer("created_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .$onUpdate(() => /* @__PURE__ */ new Date())
-    .notNull(),
+  ...timestamps,
+});
+
+export const techniques = sqliteTable("techniques", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  exampleText: text("example_text").notNull(),
+  category: text("category").notNull(),
+  ...timestamps,
+});
+
+export const challenges = sqliteTable("challenges", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  contentText: text("content_text").notNull(),
+  imageUrl: text("image_url"),
+  historicalContext: text("historical_context").notNull(),
+  difficulty: text("difficulty").notNull(),
+  primaryTechnique: text("primary_technique")
+    .notNull()
+    .references(() => techniques.id, { onDelete: "restrict" }),
+  techniques: text("techniques").notNull(), // JSON array of technique IDs
+  explanation: text("explanation").notNull(),
+  ...timestamps,
+});
+
+export const userChallengeAttempts = sqliteTable("user_challenge_attempts", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  challengeId: text("challenge_id")
+    .notNull()
+    .references(() => challenges.id, { onDelete: "cascade" }),
+  selectedTechniques: text("selected_techniques").notNull(), // JSON array
+  correctTechniques: text("correct_techniques").notNull(), // JSON array
+  isCorrect: integer("is_correct", { mode: "boolean" }).notNull(),
+  accuracyScore: real("accuracy_score").notNull(),
+  attemptedAt: integer("attempted_at", { mode: "timestamp_ms" }).notNull(),
+  ...timestamps,
 });

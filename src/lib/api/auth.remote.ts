@@ -18,7 +18,7 @@ const loginSchema = z.object({
 export const signup = form(signupSchema, async (user, invalid) => {
   try {
     await auth.api.signUpEmail({ body: user });
-    redirect(307, "/dashboard");
+		redirect(307, '/your-courses');
   } catch (error) {
     if (isRedirect(error)) {
       throw error;
@@ -34,7 +34,7 @@ export const login = form(loginSchema, async (user, invalid) => {
   const { request } = getRequestEvent();
   try {
     await auth.api.signInEmail({ body: user, headers: request.headers });
-    redirect(303, "/dashboard");
+		redirect(303, '/your-courses');
   } catch (error) {
     if (isRedirect(error)) {
       throw error;

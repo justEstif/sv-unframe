@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
+import type { InferSelectModel } from "drizzle-orm";
 
 const timestamps = {
   createdAt: integer("created_at", { mode: "timestamp" })
@@ -102,3 +103,12 @@ export const userChallengeAttempts = sqliteTable("user_challenge_attempts", {
   attemptedAt: integer("attempted_at", { mode: "timestamp_ms" }).notNull(),
   ...timestamps,
 });
+
+// Type exports
+export type User = InferSelectModel<typeof user>;
+export type Session = InferSelectModel<typeof session>;
+export type Account = InferSelectModel<typeof account>;
+export type Verification = InferSelectModel<typeof verification>;
+export type Technique = InferSelectModel<typeof techniques>;
+export type Challenge = InferSelectModel<typeof challenges>;
+export type UserChallengeAttempt = InferSelectModel<typeof userChallengeAttempts>;

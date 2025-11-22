@@ -8,3 +8,7 @@ NARA_API_KEY  = ""
 [tasks."db:seed"]
 description = "Seed the database with challenge data from assets"
 run = "npx tsx scripts/seed-challenges.ts"
+
+[tasks."scrape"]
+description = "scrape challenges"
+run = "npx tsx scripts/scrape-challenges.ts"

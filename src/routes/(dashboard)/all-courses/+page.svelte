@@ -1,6 +1,6 @@
 <script lang="ts">
-  import ChallengeCard from '$lib/components/ChallengeCard.svelte';
-  import type { PageData } from './$types';
+  import ChallengeCard from "$lib/components/ChallengeCard.svelte";
+  import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
   const { challengesWithAttempts } = data;

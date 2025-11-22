@@ -1,0 +1,19 @@
+{
+  "id": "fear-021",
+  "title": "[Gould can 5161.3]",
+  "source": "Prelinger Archives",
+  "sourceUrl": "https://archive.org/details/0779_Gould_can_5161_3_09_39_57_16",
+  "imageUrl": "https://archive.org/services/img/0779_Gould_can_5161_3_09_39_57_16",
+  "imageFilename": "fear-021.jpg",
+  "era": 1915,
+  "historicalContext": "[NEEDS REVIEW] New York City: Police distribute literature on how to protect life, property and money. 09:40:11:05 Badly overexposed footage of New York City police handing out cards informing public on how to protect lives, property and money.",
+  "primaryTechnique": "fear-appeal",
+  "allTechniques": [
+    "fear-appeal"
+  ],
+  "difficulty": "medium",
+  "explanation": "[NEEDS REVIEW] This content uses fear-based messaging to encourage behavioral change.",
+  "correctAnswers": [
+    "fear-appeal"
+  ]
+}

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { Challenge } from '$lib/server/db/schema';
-  import { goto } from '$app/navigation';
+  import type { Challenge } from "$lib/server/db/schema";
+  import { goto } from "$app/navigation";
 
   interface Props {
     challenge: Challenge;
@@ -11,13 +11,16 @@
   const { challenge, userAccuracy, isAttempted } = $props();
 
   const difficultyColors = {
-    easy: 'badge-success',
-    medium: 'badge-warning',
-    hard: 'badge-error'
+    easy: "badge-success",
+    medium: "badge-warning",
+    hard: "badge-error",
   };
 
   const getDifficultyColor = (difficulty: string) => {
-    return difficultyColors[difficulty as keyof typeof difficultyColors] || 'badge-neutral';
+    return (
+      difficultyColors[difficulty as keyof typeof difficultyColors] ||
+      "badge-neutral"
+    );
   };
 
   const handleCardClick = async () => {
@@ -26,14 +29,24 @@
 
   // Store previous location (defaults to /your-courses)
   const goBack = async () => {
-    await goto('/your-courses');
+    await goto("/your-courses");
   };
 </script>
 
-<div class="card bg-base-100 shadow-md hover:shadow-lg transition-shadow cursor-pointer" onclick={handleCardClick} role="button" tabindex="0" onkeydown={(e) => e.key === 'Enter' && handleCardClick()}>
+<div
+  class="card bg-base-100 shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+  onclick={handleCardClick}
+  role="button"
+  tabindex="0"
+  onkeydown={(e) => e.key === "Enter" && handleCardClick()}
+>
   {#if challenge.imageUrl}
     <figure class="px-4 pt-4 h-32 overflow-hidden">
-      <img src={challenge.imageUrl} alt={challenge.title} class="w-full h-full object-cover rounded-lg" />
+      <img
+        src={challenge.imageUrl}
+        alt={challenge.title}
+        class="w-full h-full object-cover rounded-lg"
+      />
     </figure>
   {/if}
 
@@ -61,7 +74,7 @@
 
     <div class="card-actions justify-end mt-4">
       <button class="btn btn-sm btn-primary" onclick={handleCardClick}>
-        {isAttempted ? 'Try Again' : 'Start'}
+        {isAttempted ? "Try Again" : "Start"}
       </button>
     </div>
   </div>

@@ -1,0 +1,19 @@
+{
+  "id": "fear-025",
+  "title": "Big Man On Campus",
+  "source": "Prelinger Archives",
+  "sourceUrl": "https://archive.org/details/BigManOnCamp",
+  "imageUrl": "https://archive.org/services/img/BigManOnCamp",
+  "imageFilename": "fear-025.jpg",
+  "era": 1958,
+  "historicalContext": "[NEEDS REVIEW] Tells the story of Jerry Warner, a junior high school student who finds himself in trouble with the authorities and realizes that it is his own attitude and behavior that have caused his predicament. \"Produced with the cooperation of the Los Angeles City School District, the Inglewood Unified School District, and the Inglewood Police Department.\"",
+  "primaryTechnique": "fear-appeal",
+  "allTechniques": [
+    "fear-appeal"
+  ],
+  "difficulty": "medium",
+  "explanation": "[NEEDS REVIEW] This content uses fear-based messaging to encourage behavioral change.",
+  "correctAnswers": [
+    "fear-appeal"
+  ]
+}

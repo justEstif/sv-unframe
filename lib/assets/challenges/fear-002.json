@@ -1,0 +1,19 @@
+{
+  "id": "fear-002",
+  "title": "War bonds over 90% N.O.P.E.",
+  "source": "Library of Congress",
+  "sourceUrl": "http://www.loc.gov/item/98518282/",
+  "imageUrl": "https://tile.loc.gov/storage-services/service/pnp/cph/3f00000/3f05000/3f05500/3f05579_150px.jpg#h=150&w=104",
+  "imageFilename": "fear-002.jpg",
+  "era": "1941-01-01",
+  "historicalContext": "[NEEDS REVIEW] 1 print on board (poster) : silkscreen, color. | Poster encouraging purchase of war bonds to support the war effort.",
+  "primaryTechnique": "fear-appeal",
+  "allTechniques": [
+    "fear-appeal"
+  ],
+  "difficulty": "medium",
+  "explanation": "[NEEDS REVIEW] This piece uses fear appeals to motivate action by highlighting dangers and threats.",
+  "correctAnswers": [
+    "fear-appeal"
+  ]
+}

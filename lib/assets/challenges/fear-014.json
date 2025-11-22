@@ -1,0 +1,19 @@
+{
+  "id": "fear-014",
+  "title": "Don't speak the enemy languages",
+  "source": "Wikimedia Commons",
+  "sourceUrl": "https://commons.wikimedia.org/wiki/File:Don%27t_speak_the_enemy_languages.jpg",
+  "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/1/16/Don%27t_speak_the_enemy_languages.jpg",
+  "imageFilename": "fear-014.jpg",
+  "era": "1940",
+  "historicalContext": "[NEEDS REVIEW] U.S. propaganda poster which encourages ethnic minorities in the country not to speak languages of the enemy countries",
+  "primaryTechnique": "fear-appeal",
+  "allTechniques": [
+    "fear-appeal"
+  ],
+  "difficulty": "medium",
+  "explanation": "[NEEDS REVIEW] This piece uses fear appeals to motivate action by highlighting dangers and threats.",
+  "correctAnswers": [
+    "fear-appeal"
+  ]
+}

@@ -22,7 +22,7 @@ const CONFIG = {
   techniqueName: "Fear Appeals",
   outputDir: path.join(process.cwd(), "lib", "assets"),
   challengesDir: path.join(process.cwd(), "lib", "assets", "challenges"),
-  imagesDir: path.join(process.cwd(), "lib", "assets", "images"),
+  imagesDir: path.join(process.cwd(), "static", "images"),
   targetCount: 15,
   dryRun: process.argv.includes("--dry-run"),
   rateLimit: 2000, // ms between requests

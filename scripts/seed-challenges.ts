@@ -1,6 +1,5 @@
-import { readdirSync, readFileSync, copyFileSync } from 'fs';
-import { join, parse } from 'path';
-import { mkdir } from 'fs/promises';
+import { readdirSync, readFileSync } from 'fs';
+import { join } from 'path';
 import { drizzle } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
 import * as schema from '../src/lib/server/db/schema';
@@ -27,9 +26,9 @@ function cleanText(text: string): string {
   return text.replace(/\[NEEDS REVIEW\]\s*/, '');
 }
 
-// Convert image filename to $lib path
+// Convert image filename to static path
 function getImageUrl(filename: string): string {
-  return `$lib/assets/images/${filename}`;
+  return `/images/${filename}`;
 }
 
 async function seedChallenges() {
@@ -46,37 +45,8 @@ async function seedChallenges() {
   try {
     // 1. Set up paths
     const sourceChallengersDir = join(process.cwd(), 'lib', 'assets', 'challenges');
-    const sourceImagesDir = join(process.cwd(), 'lib', 'assets', 'images');
-    const destImagesDir = join(process.cwd(), 'src', 'lib', 'assets', 'images');
 
-    // 2. Migrate images from lib/assets/images to src/lib/assets/images
-    console.log('\n📁 Migrating images...');
-    try {
-      const sourceFiles = readdirSync(sourceImagesDir).filter((file) => file.endsWith('.jpg'));
-
-      if (sourceFiles.length > 0) {
-        // Create destination directory if it doesn't exist
-        await mkdir(destImagesDir, { recursive: true });
-
-        for (const file of sourceFiles) {
-          const sourcePath = join(sourceImagesDir, file);
-          const destPath = join(destImagesDir, file);
-          try {
-            copyFileSync(sourcePath, destPath);
-            console.log(`  ✓ Migrated image: ${file}`);
-          } catch (error) {
-            console.error(`  ✗ Failed to migrate ${file}:`, error);
-          }
-        }
-        console.log(`  ✓ Migrated ${sourceFiles.length} images`);
-      } else {
-        console.log(`  ⚠ No source images found in ${sourceImagesDir}`);
-      }
-    } catch (error) {
-      console.log(`  ⚠ Source images directory not found, skipping migration`);
-    }
-
-    // 3. Read all challenge files from lib/assets/challenges
+    // 2. Read all challenge files from lib/assets/challenges
     let files: string[] = [];
     try {
       files = readdirSync(sourceChallengersDir).filter((file) => file.endsWith('.json'));

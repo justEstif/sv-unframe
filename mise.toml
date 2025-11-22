@@ -3,7 +3,10 @@ DATABASE_URL = "file:local.db"
 BETTER_AUTH_SECRET = "WmtcX9FslXXSU5EthCx6AGBdu1ZmYbhO"
 BETTER_AUTH_URL = "http://localhost:5173"
 PUBLIC_BETTER_AUTH_URL = "http://localhost:5173"
-NARA_API_KEY  = ""
+NARA_API_KEY = ""
+
+[tasks."db:push"]
+run = "pnpm run db:seed"
 
 [tasks."db:seed"]
 description = "Seed the database with challenge data from assets"

@@ -3,12 +3,12 @@ import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 import type { InferSelectModel } from "drizzle-orm";
 
 const timestamps = {
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .default(sql`(current_timestamp)`)
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
     .notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
-    .default(sql`(current_timestamp)`)
-    .$onUpdate(() => new Date())
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
 };
 
@@ -69,7 +69,6 @@ export const techniques = sqliteTable("techniques", {
   name: text("name").notNull(),
   description: text("description").notNull(),
   exampleText: text("example_text").notNull(),
-  category: text("category").notNull(),
   ...timestamps,
 });
 
@@ -85,6 +84,31 @@ export const challenges = sqliteTable("challenges", {
     .references(() => techniques.id, { onDelete: "restrict" }),
   techniques: text("techniques").notNull(), // JSON array of technique IDs
   explanation: text("explanation").notNull(),
+  ...timestamps,
+});
+
+export const quizzes = sqliteTable("quizzes", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  primaryTechniqueId: text("primary_technique_id")
+    .notNull()
+    .references(() => techniques.id, { onDelete: "restrict" }),
+  techniqueIds: text("technique_ids").notNull(), // JSON array of technique IDs
+  difficulty: text("difficulty").notNull(),
+  orderIndex: integer("order_index").notNull(),
+  ...timestamps,
+});
+
+export const quizChallenges = sqliteTable("quiz_challenges", {
+  id: text("id").primaryKey(),
+  quizId: text("quiz_id")
+    .notNull()
+    .references(() => quizzes.id, { onDelete: "cascade" }),
+  challengeId: text("challenge_id")
+    .notNull()
+    .references(() => challenges.id, { onDelete: "cascade" }),
+  orderIndex: integer("order_index").notNull(),
   ...timestamps,
 });
 
@@ -104,6 +128,23 @@ export const userChallengeAttempts = sqliteTable("user_challenge_attempts", {
   ...timestamps,
 });
 
+export const userQuizAttempts = sqliteTable("user_quiz_attempts", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  quizId: text("quiz_id")
+    .notNull()
+    .references(() => quizzes.id, { onDelete: "cascade" }),
+  totalChallenges: integer("total_challenges").notNull(),
+  correctAnswers: integer("correct_answers").notNull(),
+  accuracyScore: real("accuracy_score").notNull(),
+  isCompleted: integer("is_completed", { mode: "boolean" }).notNull(),
+  completedAt: integer("completed_at", { mode: "timestamp_ms" }),
+  attemptedAt: integer("attempted_at", { mode: "timestamp_ms" }).notNull(),
+  ...timestamps,
+});
+
 // Type exports
 export type User = InferSelectModel<typeof user>;
 export type Session = InferSelectModel<typeof session>;
@@ -111,4 +152,9 @@ export type Account = InferSelectModel<typeof account>;
 export type Verification = InferSelectModel<typeof verification>;
 export type Technique = InferSelectModel<typeof techniques>;
 export type Challenge = InferSelectModel<typeof challenges>;
-export type UserChallengeAttempt = InferSelectModel<typeof userChallengeAttempts>;
+export type Quiz = InferSelectModel<typeof quizzes>;
+export type QuizChallenge = InferSelectModel<typeof quizChallenges>;
+export type UserChallengeAttempt = InferSelectModel<
+  typeof userChallengeAttempts
+>;
+export type UserQuizAttempt = InferSelectModel<typeof userQuizAttempts>;

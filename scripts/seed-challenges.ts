@@ -97,7 +97,6 @@ async function seedChallenges() {
             .join(' '),
           description: `This technique represents the "${technique}" persuasion method.`,
           exampleText: `An example of the ${technique} technique in propaganda.`,
-          category: 'persuasion',
         });
         console.log(`  ✓ Created technique '${technique}'`);
       }
@@ -135,12 +134,86 @@ async function seedChallenges() {
       successCount++;
     }
 
+    // 4. Generate quizzes from challenges
+    console.log('\n🎯 Generating quizzes...');
+
+    // Group challenges by primary technique
+    const challengesByTechnique = new Map<string, typeof challenges>();
+    for (const challenge of challenges) {
+      if (!challengesByTechnique.has(challenge.primaryTechnique)) {
+        challengesByTechnique.set(challenge.primaryTechnique, []);
+      }
+      challengesByTechnique.get(challenge.primaryTechnique)!.push(challenge);
+    }
+
+    let quizCount = 0;
+    let quizChallengeCount = 0;
+
+    // Create quizzes for each technique
+    for (const [techniqueId, techniqueChallenges] of challengesByTechnique) {
+      let quizNumber = 1;
+
+      // Create multiple quizzes if we have more than 10 challenges
+      for (let i = 0; i < techniqueChallenges.length; i += 10) {
+        const quizChallengesSlice = techniqueChallenges.slice(i, i + 10);
+        const quizId = `${techniqueId}-quiz-${quizNumber}`;
+
+        // Check if quiz already exists
+        const existingQuiz = await db.query.quizzes.findFirst({
+          where: (q) => eq(q.id, quizId),
+        });
+
+        if (!existingQuiz) {
+          // Get the technique name
+          const technique = await db.query.techniques.findFirst({
+            where: eq(schema.techniques.id, techniqueId),
+          });
+
+          if (technique) {
+            // Determine difficulty based on position
+            const difficulty = quizNumber === 1 ? 'beginner' : quizNumber === 2 ? 'intermediate' : 'advanced';
+
+            await db.insert(schema.quizzes).values({
+              id: quizId,
+              title: `${technique.name} Quiz ${quizNumber}`,
+              description: `Practice identifying ${technique.name} across ${quizChallengesSlice.length} challenges`,
+              primaryTechniqueId: techniqueId,
+              techniqueIds: JSON.stringify([techniqueId]),
+              difficulty,
+              orderIndex: quizNumber - 1,
+            });
+
+            // Add challenges to quiz
+            for (let j = 0; j < quizChallengesSlice.length; j++) {
+              const quizChallenge = quizChallengesSlice[j];
+              await db.insert(schema.quizChallenges).values({
+                id: `${quizId}-${j}`,
+                quizId,
+                challengeId: quizChallenge.id,
+                orderIndex: j,
+              });
+              quizChallengeCount++;
+            }
+
+            console.log(`  ✓ Created quiz '${quizId}' with ${quizChallengesSlice.length} challenges`);
+            quizCount++;
+          }
+        } else {
+          console.log(`  ⊘ Quiz '${quizId}' already exists, skipping`);
+        }
+
+        quizNumber++;
+      }
+    }
+
     console.log(`\n✅ Seeding completed!`);
     console.log(`   - Techniques: ${techniques.length}`);
     console.log(`   - Challenges created: ${successCount}`);
     if (skipCount > 0) {
       console.log(`   - Challenges skipped: ${skipCount}`);
     }
+    console.log(`   - Quizzes created: ${quizCount}`);
+    console.log(`   - Quiz challenges linked: ${quizChallengeCount}`);
   } catch (error) {
     console.error('❌ Error during seeding:', error);
     process.exit(1);

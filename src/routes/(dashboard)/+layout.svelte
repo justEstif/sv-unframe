@@ -7,14 +7,14 @@
 <NavBar />
 
 <div class="min-h-screen">
-  <div class="container mx-auto px-4 py-8">
+  <div class="container mx-auto py-8">
     <h1 class="text-3xl font-bold mb-6">Dashboard</h1>
 
     <!-- Tabs -->
-    <div class="tabs tabs-boxed bg-base-100 rounded-lg mb-6">
+    <div class="tabs tabs-boxed bg-base-100 rounded-lg mb-6 px-0">
       <a
         href="/your-courses"
-        class="tab"
+        class="tab pl-0"
         class:tab-active={page.url.pathname === "/your-courses"}
       >
         Your Courses

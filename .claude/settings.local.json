@@ -1,6 +1,12 @@
 {
+  "permissions": {
+    "allow": [
+      "mcp__svelte__svelte-autofixer",
+      "Bash(sqlite3:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "svelte"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }

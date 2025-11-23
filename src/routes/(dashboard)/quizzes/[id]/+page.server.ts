@@ -13,14 +13,23 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     throw new Error("Quiz ID not provided");
   }
 
-  const result = await db
-    .select()
-    .from(challenges)
-    .innerJoin(quizChallenges, eq(challenges.id, quizChallenges.challengeId))
-    .where(eq(quizChallenges.quizId, params.id))
-    .orderBy(quizChallenges.orderIndex);
+  try {
+    const result = await db
+      .select()
+      .from(challenges)
+      .innerJoin(quizChallenges, eq(challenges.id, quizChallenges.challengeId))
+      .where(eq(quizChallenges.quizId, params.id))
+      .orderBy(quizChallenges.orderIndex);
 
-  // Extract just the challenges
-  const quiz = result.map((row) => row.challenges);
-  return { quiz };
+    // Extract just the challenges
+    const quiz = result.map((row) => row.challenges);
+
+    if (quiz.length === 0) throw new Error("Quiz not found");
+
+    return { quiz };
+  } catch (error) {
+    // Will have to haandle error better next time
+    console.error("Error loading quiz:", error);
+    throw error;
+  }
 };

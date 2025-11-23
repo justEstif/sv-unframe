@@ -1,7 +1,10 @@
 import type { PageServerLoad } from "./$types";
 import { db } from "$lib/server/db";
 import { quizzes, techniques, userQuizAttempts } from "$lib/server/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, and } from "drizzle-orm";
+
+type StatusFilter = "not-started" | "in-progress" | "completed";
+type DifficultyFilter = "beginner" | "intermediate" | "advanced";
 
 export const load: PageServerLoad = async ({ locals, url }) => {
   const user = locals.user;
@@ -9,8 +12,10 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     throw new Error("User not found");
   }
 
-  // Get technique filter from query params
+  // Get filters from query params
   const techniqueFilter = url.searchParams.get("technique");
+  const difficultyFilter = url.searchParams.get("difficulty") as DifficultyFilter | null;
+  const statusFilter = url.searchParams.get("status") as StatusFilter | null;
 
   // Get all techniques for sidebar
   const allTechniques = await db
@@ -42,16 +47,43 @@ export const load: PageServerLoad = async ({ locals, url }) => {
     .groupBy(quizzes.id)
     .$dynamic();
 
-  // Apply technique filter if provided
+  // Apply filters
+  const conditions = [];
+
+  // Technique filter
   if (techniqueFilter) {
-    query = query.where(eq(quizzes.primaryTechniqueId, techniqueFilter));
+    conditions.push(eq(quizzes.primaryTechniqueId, techniqueFilter));
   }
 
-  const quizzesWithProgress = await query.orderBy(quizzes.orderIndex);
+  // Difficulty filter
+  if (difficultyFilter) {
+    conditions.push(eq(quizzes.difficulty, difficultyFilter));
+  }
+
+  // Status filter (requires post-query filtering based on calculated status)
+  // We'll apply this after fetching
+
+  if (conditions.length > 0) {
+    query = query.where(and(...conditions));
+  }
+
+  let quizzesWithProgress = await query.orderBy(quizzes.orderIndex);
+
+  // Apply status filter post-query
+  if (statusFilter) {
+    quizzesWithProgress = quizzesWithProgress.filter(({ attemptCount, isCompleted }) => {
+      if (statusFilter === "not-started") return attemptCount === 0;
+      if (statusFilter === "in-progress") return attemptCount > 0 && !isCompleted;
+      if (statusFilter === "completed") return isCompleted;
+      return true;
+    });
+  }
 
   return {
     quizzesWithProgress,
     allTechniques,
     selectedTechnique: techniqueFilter,
+    selectedDifficulty: difficultyFilter,
+    selectedStatus: statusFilter,
   };
 };

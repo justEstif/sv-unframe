@@ -2,6 +2,7 @@ import type { PageServerLoad } from "./$types";
 import { db } from "$lib/server/db";
 import {
   challenges,
+  quizzes,
   techniques,
   userChallengeAttempts,
 } from "$lib/server/db/schema";
@@ -12,6 +13,8 @@ export const load: PageServerLoad = async ({ locals }) => {
   if (!user) {
     throw new Error("User not found");
   }
+
+  // get the quizzes
 
   const challengesByTechnique = await db
     .select({

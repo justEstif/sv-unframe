@@ -1,6 +1,6 @@
 import type { PageServerLoad } from "./$types";
 import { db } from "$lib/server/db";
-import { quizzes } from "$lib/server/db/schema";
+import { challenges, quizChallenges } from "$lib/server/db/schema";
 import { eq } from "drizzle-orm";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -13,18 +13,14 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     throw new Error("Quiz ID not provided");
   }
 
-  // Preload quiz metadata
-  const [quiz] = await db
+  const result = await db
     .select()
-    .from(quizzes)
-    .where(eq(quizzes.id, params.id))
-    .limit(1);
+    .from(challenges)
+    .innerJoin(quizChallenges, eq(challenges.id, quizChallenges.challengeId))
+    .where(eq(quizChallenges.quizId, params.id))
+    .orderBy(quizChallenges.orderIndex);
 
-  if (!quiz) {
-    throw new Error("Quiz not found");
-  }
-
-  return {
-    quiz,
-  };
+  // Extract just the challenges
+  const quiz = result.map((row) => row.challenges);
+  return { quiz };
 };

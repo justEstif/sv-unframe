@@ -13,18 +13,11 @@
     <!-- Tabs -->
     <div class="tabs tabs-boxed bg-base-100 rounded-lg mb-6 px-0">
       <a
-        href="/your-courses"
-        class="tab pl-0"
-        class:tab-active={page.url.pathname === "/your-courses"}
-      >
-        Your Courses
-      </a>
-      <a
-        href="/all-courses"
+        href="/quizzes"
         class="tab"
-        class:tab-active={page.url.pathname === "/all-courses"}
+        class:tab-active={page.url.pathname.startsWith("/quizzes")}
       >
-        All Courses
+        Quizzes
       </a>
     </div>
 

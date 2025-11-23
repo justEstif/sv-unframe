@@ -3,6 +3,7 @@
     import { page } from "$app/state";
     import type { Technique } from "$lib/server/db/schema";
 
+    // note: the "techniques" should be moved into a remote function
     interface QuizFilterSidebarProps {
         allTechniques: Technique[];
     }
@@ -18,7 +19,7 @@
         }
         return `/quizzes?${params.toString()}`;
     }
-    //
+
     // Make filters reactive to URL changes
     const selectedTechnique = $derived(page.url.searchParams.get("technique"));
     const selectedDifficulty = $derived(
@@ -114,20 +115,6 @@
                 href="/quizzes"
                 class="btn btn-outline btn-sm btn-error w-full gap-2"
             >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="size-4"
-                >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M6 18 18 6M6 6l12 12"
-                    />
-                </svg>
                 Reset All Filters
             </a>
         </li>

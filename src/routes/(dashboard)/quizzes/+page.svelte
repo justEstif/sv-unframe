@@ -1,6 +1,5 @@
 <script lang="ts">
     import type { PageData } from "./$types";
-    import { page } from "$app/state";
     import QuizCard from "$lib/components/QuizCard.svelte";
     import QuizFilterSidebar from "$lib/components/QuizFilterSidebar.svelte";
     import EmptyState from "$lib/components/EmptyState.svelte";

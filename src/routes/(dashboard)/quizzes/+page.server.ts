@@ -14,7 +14,9 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
   // Get filters from query params
   const techniqueFilter = url.searchParams.get("technique");
-  const difficultyFilter = url.searchParams.get("difficulty") as DifficultyFilter | null;
+  const difficultyFilter = url.searchParams.get(
+    "difficulty",
+  ) as DifficultyFilter | null;
   const statusFilter = url.searchParams.get("status") as StatusFilter | null;
 
   // Get all techniques for sidebar
@@ -62,7 +64,6 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
   // Status filter (requires post-query filtering based on calculated status)
   // We'll apply this after fetching
-
   if (conditions.length > 0) {
     query = query.where(and(...conditions));
   }
@@ -71,19 +72,19 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
   // Apply status filter post-query
   if (statusFilter) {
-    quizzesWithProgress = quizzesWithProgress.filter(({ attemptCount, isCompleted }) => {
-      if (statusFilter === "not-started") return attemptCount === 0;
-      if (statusFilter === "in-progress") return attemptCount > 0 && !isCompleted;
-      if (statusFilter === "completed") return isCompleted;
-      return true;
-    });
+    quizzesWithProgress = quizzesWithProgress.filter(
+      ({ attemptCount, isCompleted }) => {
+        if (statusFilter === "not-started") return attemptCount === 0;
+        if (statusFilter === "in-progress")
+          return attemptCount > 0 && !isCompleted;
+        if (statusFilter === "completed") return isCompleted;
+        return true;
+      },
+    );
   }
 
   return {
     quizzesWithProgress,
     allTechniques,
-    selectedTechnique: techniqueFilter,
-    selectedDifficulty: difficultyFilter,
-    selectedStatus: statusFilter,
   };
 };

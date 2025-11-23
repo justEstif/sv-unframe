@@ -9,7 +9,7 @@ import {
 } from "$lib/server/db/schema";
 import { redirect, error } from "@sveltejs/kit";
 import { randomUUID } from "crypto";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 // Schema for submitting quiz answers
@@ -73,77 +73,81 @@ export const getQuizWithChallenges = query(z.string(), async (quizId) => {
 /**
  * Submit quiz answers and store results
  */
-export const submitQuiz = form(quizAnswersSchema, async ({ quizId, answers }) => {
-  const { locals } = getRequestEvent();
+export const submitQuiz = form(
+  quizAnswersSchema,
+  async ({ quizId, answers }) => {
+    const { locals } = getRequestEvent();
 
-  if (!locals.user) {
-    redirect(303, "/");
-  }
-
-  const results = [];
-  let correctCount = 0;
-
-  // Process each challenge answer
-  for (const answer of answers) {
-    const { challengeId, selectedTechniques } = answer;
-
-    const [challenge] = await db
-      .select()
-      .from(challenges)
-      .where(eq(challenges.id, challengeId))
-      .limit(1);
-
-    if (!challenge) {
-      error(404, `Challenge ${challengeId} not found`);
+    if (!locals.user) {
+      redirect(303, "/");
     }
 
-    const correctTechniques: string[] = JSON.parse(challenge.techniques);
-    const selected = selectedTechniques || [];
+    const results = [];
+    let correctCount = 0;
 
-    const correctMatches = selected.filter((t) =>
-      correctTechniques.includes(t),
-    ).length;
-    const totalCorrect = correctTechniques.length;
-    const accuracyScore =
-      totalCorrect > 0 ? correctMatches / totalCorrect : 0;
+    // Process each challenge answer
+    for (const answer of answers) {
+      const { challengeId, selectedTechniques } = answer;
 
-    const isCorrect =
-      selected.length === correctTechniques.length &&
-      selected.every((t) => correctTechniques.includes(t));
+      const [challenge] = await db
+        .select()
+        .from(challenges)
+        .where(eq(challenges.id, challengeId))
+        .limit(1);
 
-    if (isCorrect) {
-      correctCount++;
+      if (!challenge) {
+        error(404, `Challenge ${challengeId} not found`);
+      }
+
+      const correctTechniques: string[] = JSON.parse(challenge.techniques);
+      const selected = selectedTechniques || [];
+
+      const correctMatches = selected.filter((t) =>
+        correctTechniques.includes(t),
+      ).length;
+      const totalCorrect = correctTechniques.length;
+      const accuracyScore =
+        totalCorrect > 0 ? correctMatches / totalCorrect : 0;
+
+      const isCorrect =
+        selected.length === correctTechniques.length &&
+        selected.every((t) => correctTechniques.includes(t));
+
+      if (isCorrect) {
+        correctCount++;
+      }
+
+      results.push({
+        challengeId,
+        selected,
+        correct: correctTechniques,
+        isCorrect,
+        accuracyScore,
+      });
     }
 
-    results.push({
-      challengeId,
-      selected,
-      correct: correctTechniques,
-      isCorrect,
-      accuracyScore,
+    const overallAccuracy =
+      answers.length > 0 ? correctCount / answers.length : 0;
+
+    // Store quiz attempt
+    await db.insert(userQuizAttempts).values({
+      id: randomUUID(),
+      userId: locals.user.id,
+      quizId,
+      totalChallenges: answers.length,
+      correctAnswers: correctCount,
+      accuracyScore: overallAccuracy,
+      isCompleted: true,
+      completedAt: new Date(),
+      attemptedAt: new Date(),
     });
-  }
 
-  const overallAccuracy = answers.length > 0 ? correctCount / answers.length : 0;
-
-  // Store quiz attempt
-  await db.insert(userQuizAttempts).values({
-    id: randomUUID(),
-    userId: locals.user.id,
-    quizId,
-    totalChallenges: answers.length,
-    correctAnswers: correctCount,
-    accuracyScore: overallAccuracy,
-    isCompleted: true,
-    completedAt: new Date(),
-    attemptedAt: new Date(),
-  });
-
-  return {
-    success: true,
-    results,
-    score: overallAccuracy * 100,
-    correctCount,
-    totalChallenges: answers.length,
-  };
-});
+    return {
+      success: true,
+      results,
+      score: overallAccuracy * 100,
+      correctCount,
+      totalChallenges: answers.length,
+    };
+  },
+);

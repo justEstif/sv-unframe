@@ -1,4 +1,4 @@
-import { isRedirect, redirect } from "@sveltejs/kit";
+import { isRedirect, redirect, invalid } from "@sveltejs/kit";
 import { form, getRequestEvent, query } from "$app/server";
 import { auth } from "$lib/server/auth";
 import { z } from "zod";
@@ -15,7 +15,7 @@ const loginSchema = z.object({
   password: z.string().min(8),
 });
 
-export const signup = form(signupSchema, async (user, invalid) => {
+export const signup = form(signupSchema, async (user, issue) => {
   try {
     await auth.api.signUpEmail({ body: user });
     redirect(307, "/quizzes");
@@ -23,15 +23,14 @@ export const signup = form(signupSchema, async (user, invalid) => {
     if (isRedirect(error)) {
       throw error;
     }
-    // something here
     if (error instanceof APIError) {
-      invalid(invalid.password(error.message));
+      invalid(issue.password(error.message));
     }
     throw error;
   }
 });
 
-export const login = form(loginSchema, async (user, invalid) => {
+export const login = form(loginSchema, async (user, issue) => {
   const { request } = getRequestEvent();
   try {
     await auth.api.signInEmail({ body: user, headers: request.headers });
@@ -40,7 +39,7 @@ export const login = form(loginSchema, async (user, invalid) => {
     if (isRedirect(error)) {
       throw error;
     } else if (error instanceof APIError) {
-      invalid(invalid.password(error.message));
+      invalid(issue.password(error.message));
     } else {
       throw error;
     }

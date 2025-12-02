@@ -2,13 +2,13 @@ import { form, getRequestEvent } from "$app/server";
 import { db } from "$lib/server/db";
 import {
   challenges,
+  quizChallenges,
   userChallengeAttempts,
   userQuizAttempts,
-  quizChallenges,
 } from "$lib/server/db/schema";
-import { redirect, error } from "@sveltejs/kit";
+import { error, redirect } from "@sveltejs/kit";
 import { randomUUID } from "crypto";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 const answerSchema = z.object({
@@ -33,7 +33,8 @@ export const submitAnswer = form(answerSchema, async ({ answers }) => {
   }
 
   // Use a transaction for atomicity
-  const result = await db.transaction(async (tx) => {
+  const attemptId = randomUUID();
+  await db.transaction(async (tx) => {
     // Verify quiz exists and get challenge count
     const quizChallengesList = await tx.query.quizChallenges.findMany({
       where: eq(quizChallenges.quizId, quizId),
@@ -70,6 +71,10 @@ export const submitAnswer = form(answerSchema, async ({ answers }) => {
       const isCorrect =
         userAnswer.includes(challenge.primaryTechnique) && accuracyScore >= 0.5;
 
+      if (isCorrect) {
+        correctCount++;
+      }
+
       // Insert individual challenge attempt
       await tx.insert(userChallengeAttempts).values({
         id: randomUUID(),
@@ -89,7 +94,7 @@ export const submitAnswer = form(answerSchema, async ({ answers }) => {
 
     // Insert or update quiz attempt
     await tx.insert(userQuizAttempts).values({
-      id: randomUUID(),
+      id: attemptId,
       userId,
       quizId,
       totalChallenges,
@@ -100,12 +105,8 @@ export const submitAnswer = form(answerSchema, async ({ answers }) => {
       attemptedAt: new Date(),
     });
 
-    return {
-      correctAnswers: correctCount,
-      totalChallenges,
-      accuracyScore: quizAccuracy,
-    };
+    return attemptId;
   });
 
-  return result;
+  redirect(302, `/results/${attemptId}`);
 });
